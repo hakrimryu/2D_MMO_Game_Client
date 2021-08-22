@@ -24,16 +24,86 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private Vector3Int _cellPos = Vector3Int.zero;
     /// <summary>
-    /// 動き方
-    /// </summary>
-    private MoveDir _dir = MoveDir.None;
-    /// <summary>
     /// 動きチェック
     /// </summary>
     private bool _isMoving = false;
-    
+    /// <summary>
+    /// キャラクター·アニメーター
+    /// </summary>
+    private Animator _animator;
+    /// <summary>
+    /// 動き方
+    /// </summary>
+    private MoveDir _dir = MoveDir.Down;
+    /// <summary>
+    /// キャラクターの方向処理に伴うアニメーション再生
+    /// </summary>
+    public MoveDir Dir
+    {
+        get { return this._dir; }
+        set
+        {
+            if (this._dir == value)
+                return;
+
+            switch (value)
+            {
+                case MoveDir.Up:
+                    this._animator.Play("WALK_BACK");
+                    // キャラクター Flip (初期化用)
+                    this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    break;
+                case MoveDir.Down:
+                    this._animator.Play("WALK_FRONT");
+                    // キャラクター Flip (初期化用)
+                    this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    break;
+                case MoveDir.Left:
+                    this._animator.Play("WALK_RIGHT");
+                    // キャラクター Flip
+                    this.transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+                    break;
+                case MoveDir.Right:
+                    this._animator.Play("WALK_RIGHT");
+                    // キャラクター Flip
+                    this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    break;
+                case MoveDir.None:
+                    if (this._dir == MoveDir.Up)
+                    {
+                        this._animator.Play("IDLE_BACK");
+                        // キャラクター Flip (初期化用)
+                        this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    }
+                    else if (this._dir == MoveDir.Down)
+                    {
+                        this._animator.Play("IDLE_FRONT");
+                        // キャラクター Flip (初期化用)
+                        this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    }
+                    else if (this._dir == MoveDir.Left)
+                    {
+                        this._animator.Play("IDLE_RIGHT");
+                        // キャラクター Flip
+                        this.transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
+                    }
+                    else
+                    {
+                        this._animator.Play("IDLE_RIGHT");
+                        // キャラクター Flip
+                        this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
+                    }
+                    break;
+            }
+
+            this._dir = value;
+        }
+    }
+
     void Start()
     {
+        // アニメーター取得
+        this._animator = GetComponent<Animator>();
         // ワールド座標取得 (TODO. キャラクターのサイズため、臨時で +0.5)
         Vector3 pos = this._grid.CellToWorld(this._cellPos) + new Vector3(0.5f, 0.65f);
         this.transform.position = pos;
@@ -56,23 +126,23 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.W))
         {
-            this._dir = MoveDir.Up;
+            this.Dir = MoveDir.Up;
         }
         else if (Input.GetKey(KeyCode.S))
         {
-            this._dir = MoveDir.Down;
+            this.Dir = MoveDir.Down;
         }
         else if (Input.GetKey(KeyCode.A))
         {
-            this._dir = MoveDir.Left;
+            this.Dir = MoveDir.Left;
         }
         else if (Input.GetKey(KeyCode.D))
         {
-            this._dir = MoveDir.Right;
+            this.Dir = MoveDir.Right;
         }
         else
         {
-            this._dir = MoveDir.None;
+            this.Dir = MoveDir.None;
         }
     }
 
