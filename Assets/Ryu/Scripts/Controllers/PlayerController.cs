@@ -10,12 +10,6 @@ using static Define;
 public class PlayerController : MonoBehaviour
 {
     /// <summary>
-    /// TODO. マネージャーで管理しなければならない。
-    /// </summary>
-    [SerializeField]
-    private Grid _grid;
-    
-    /// <summary>
     /// 移動速度
     /// </summary>
     private float _speed = 5.0f;
@@ -105,7 +99,7 @@ public class PlayerController : MonoBehaviour
         // アニメーター取得
         this._animator = GetComponent<Animator>();
         // ワールド座標取得 (TODO. キャラクターのサイズため、臨時で +0.5)
-        Vector3 pos = this._grid.CellToWorld(this._cellPos) + new Vector3(0.5f, -2.35f);
+        Vector3 pos = Managers.Map.CurrentGrid.CellToWorld(this._cellPos) + new Vector3(0.5f, -2.35f);
         this.transform.position = pos;
     }
 
@@ -184,7 +178,7 @@ public class PlayerController : MonoBehaviour
             return;
         
         // 目的地ワールド座標取得 (TODO. キャラクターのサイズため、臨時で +0.5)
-        Vector3 destPos = this._grid.CellToWorld(this._cellPos) + new Vector3(0.5f, -2.35f);
+        Vector3 destPos = Managers.Map.CurrentGrid.CellToWorld(this._cellPos) + new Vector3(0.5f, -2.35f);
         // 目的地 - 現在位置 = 方向Vector
         Vector3 moveDir = destPos - this.transform.position;
         
