@@ -1,7 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿/// <summary>
+/// Define
+/// </summary>
 public class Define
 {
     /// <summary>
@@ -15,5 +14,35 @@ public class Define
         Down = 2,
         Left = 3,
         Right = 4
+    }
+    
+    /// <summary>
+    /// シーンタイプ
+    /// </summary>
+    public enum Scene
+    {
+        Unknown,
+        Login,
+        Lobby,
+        Game,
+    }
+
+    /// <summary>
+    /// サウンドタイプ
+    /// </summary>
+    public enum Sound
+    {
+        Bgm,
+        Effect,
+        MaxCount,
+    }
+
+    /// <summary>
+    /// UIイベントタイプ
+    /// </summary>
+    public enum UIEvent
+    {
+        Click,
+        Drag,
     }
 }
