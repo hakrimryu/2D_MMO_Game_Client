@@ -17,22 +17,26 @@ public class MapEditor
 
         foreach (GameObject go in gameObjects)
         {
+            // TilemapBase取得 (全体マップ)
+            Tilemap tmBase = Util.FindChild<Tilemap>(go, "Tilemap_Base", true);
+            
             // Collision Tilemap 取得
             Tilemap tm = Util.FindChild<Tilemap>(go, "Tilemap_Collision", true);
         
             // マップデータ出力
             using (var writer = File.CreateText($"Assets/Ryu/Resources/Map/{go.name}.txt"))
             {
-                writer.WriteLine(tm.cellBounds.xMin);
-                writer.WriteLine(tm.cellBounds.xMax);
-                writer.WriteLine(tm.cellBounds.yMin);
-                writer.WriteLine(tm.cellBounds.yMax);
+                writer.WriteLine(tmBase.cellBounds.xMin);
+                writer.WriteLine(tmBase.cellBounds.xMax);
+                writer.WriteLine(tmBase.cellBounds.yMin);
+                writer.WriteLine(tmBase.cellBounds.yMax);
 
                 // 左上から始めて右下に出力
-                for (int y = tm.cellBounds.yMax; y >= tm.cellBounds.yMin; y--)
+                for (int y = tmBase.cellBounds.yMax; y >= tmBase.cellBounds.yMin; y--)
                 {
-                    for (int x = tm.cellBounds.xMin; x <= tm.cellBounds.xMax; x++)
+                    for (int x = tmBase.cellBounds.xMin; x <= tmBase.cellBounds.xMax; x++)
                     {
+                        // Collision確認
                         TileBase tile = tm.GetTile(new Vector3Int(x, y, 0));
                         if (tile != null)
                             writer.Write("1");
