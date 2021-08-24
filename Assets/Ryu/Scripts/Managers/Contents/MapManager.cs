@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -13,6 +14,19 @@ public class MapManager
     /// </summary>
     public Grid CurrentGrid { get; private set; }
 
+    /// <summary>
+    /// マップサイズ情報
+    /// </summary>
+    public int MinX { get; set; }
+    public int MaxX { get; set; }
+    public int MinY { get; set; }
+    public int MaxY { get; set; }
+
+    /// <summary>
+    /// Collision
+    /// </summary>
+    private bool[,] _collision;
+    
     /// <summary>
     /// マップ·ロード
     /// </summary>
@@ -33,6 +47,32 @@ public class MapManager
 
         // 現在Grid取得
         this.CurrentGrid = go.GetComponent<Grid>();
+        
+        // Collision 関連
+        TextAsset mapTxt = Managers.Resource.Load<TextAsset>($"Map/{mapName}");
+        
+        // パーシング
+        StringReader reader = new StringReader(mapTxt.text);
+        this.MinX = int.Parse(reader.ReadLine());
+        this.MaxX = int.Parse(reader.ReadLine());
+        this.MinY = int.Parse(reader.ReadLine());
+        this.MaxY = int.Parse(reader.ReadLine());
+
+        // Collisionカウント取得
+        int xCount = this.MaxX - this.MinX + 1;
+        int yCount = this.MaxY - this.MinY + 1;
+        
+        this._collision = new bool[yCount, xCount];
+        // Collision取得
+        for (int y = 0; y < yCount; y++)
+        {
+            string line = reader.ReadLine();
+            for (int x = 0; x < xCount; x++)
+            {
+                this._collision[y, x] = (line[x] == '1' ? true : false);
+            }
+        }
+
     }
 
     /// <summary>
