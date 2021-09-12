@@ -26,7 +26,24 @@ public class MapManager
     /// Collision
     /// </summary>
     private bool[,] _collision;
-    
+
+    /// <summary>
+    /// 該当セルに、移動できるかをチェック
+    /// </summary>
+    public bool CanGo(Vector3Int cellPos)
+    {
+        // 不可能な事項例外処理
+        if (cellPos.x < MinX || cellPos.x > MaxX)
+            return false;
+        if (cellPos.y < MinY || cellPos.y > MaxY)
+            return false;
+
+        // 取得
+        int x = cellPos.x - MinX;
+        int y = MaxY - cellPos.y;
+        return !this._collision[y, x];
+    }
+
     /// <summary>
     /// マップ·ロード
     /// </summary>

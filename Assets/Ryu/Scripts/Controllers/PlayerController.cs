@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour
         // アニメーター取得
         this._animator = GetComponent<Animator>();
         // ワールド座標取得 (TODO. キャラクターのサイズため、臨時で +0.5)
-        Vector3 pos = Managers.Map.CurrentGrid.CellToWorld(this._cellPos) + new Vector3(0.5f, -2.35f);
+        Vector3 pos = Managers.Map.CurrentGrid.CellToWorld(this._cellPos) + new Vector3(0.5f, 0.5f);
         this.transform.position = pos;
     }
 
@@ -145,26 +145,31 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void UpdateIsMoving()
     {
-        if (this._isMoving == false)
+        if (this._isMoving == false && _dir != MoveDir.None)
         {
+            Vector3Int destPos = this._cellPos;
+            
             switch (this._dir)
             {
                 case MoveDir.Up:
-                    this._cellPos += Vector3Int.up;
-                    this._isMoving = true;
+                    destPos += Vector3Int.up;
                     break;
                 case MoveDir.Down:
-                    this._cellPos += Vector3Int.down;
-                    this._isMoving = true;
+                    destPos += Vector3Int.down;
                     break;
                 case MoveDir.Left:
-                    this._cellPos += Vector3Int.left;
-                    this._isMoving = true;
+                    destPos += Vector3Int.left;
                     break;
                 case MoveDir.Right:
-                    this._cellPos += Vector3Int.right;
-                    this._isMoving = true;
+                    destPos += Vector3Int.right;
                     break;
+            }
+
+            Debug.Log($"{Managers.Map.CanGo(destPos)}");
+            if (Managers.Map.CanGo(destPos))
+            {
+                this._cellPos = destPos;
+                this._isMoving = true ;
             }
         }
     }
@@ -178,7 +183,7 @@ public class PlayerController : MonoBehaviour
             return;
         
         // 目的地ワールド座標取得 (TODO. キャラクターのサイズため、臨時で +0.5)
-        Vector3 destPos = Managers.Map.CurrentGrid.CellToWorld(this._cellPos) + new Vector3(0.5f, -2.35f);
+        Vector3 destPos = Managers.Map.CurrentGrid.CellToWorld(this._cellPos) + new Vector3(0.5f, 0.5f);
         // 目的地 - 現在位置 = 方向Vector
         Vector3 moveDir = destPos - this.transform.position;
         
