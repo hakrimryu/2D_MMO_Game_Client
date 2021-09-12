@@ -15,7 +15,11 @@ public class CreatureController : MonoBehaviour
     /// キャラクター·アニメーター
     /// </summary>
     protected Animator _animator;
-
+    /// <summary>
+    /// Flip用スプライト
+    /// </summary>
+    protected SpriteRenderer _sprite;
+    
     /// <summary>
     /// クリーチャー状態
     /// </summary>
@@ -32,14 +36,17 @@ public class CreatureController : MonoBehaviour
                 return;
 
             this._state = value;
+            this.UpdateAnimation();
         }
     }
-
-
     /// <summary>
     /// 動き方
     /// </summary>
     private MoveDir _dir = MoveDir.Down;
+    /// <summary>
+    /// 最後に、眺めた方向
+    /// </summary>
+    private MoveDir _lastDir = MoveDir.Down;
     /// <summary>
     /// キャラクターの方向処理に伴うアニメーション再生
     /// </summary>
@@ -51,65 +58,25 @@ public class CreatureController : MonoBehaviour
             if (this._dir == value)
                 return;
 
-            switch (value)
-            {
-                case MoveDir.Up:
-                    this._animator.Play("WALK_BACK");
-                    // キャラクター Flip (初期化用)
-                    this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    break;
-                case MoveDir.Down:
-                    this._animator.Play("WALK_FRONT");
-                    // キャラクター Flip (初期化用)
-                    this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    break;
-                case MoveDir.Left:
-                    this._animator.Play("WALK_RIGHT");
-                    // キャラクター Flip
-                    this.transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
-                    break;
-                case MoveDir.Right:
-                    this._animator.Play("WALK_RIGHT");
-                    // キャラクター Flip
-                    this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    break;
-                case MoveDir.None:
-                    if (this._dir == MoveDir.Up)
-                    {
-                        this._animator.Play("IDLE_BACK");
-                        // キャラクター Flip (初期化用)
-                        this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    }
-                    else if (this._dir == MoveDir.Down)
-                    {
-                        this._animator.Play("IDLE_FRONT");
-                        // キャラクター Flip (初期化用)
-                        this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    }
-                    else if (this._dir == MoveDir.Left)
-                    {
-                        this._animator.Play("IDLE_RIGHT");
-                        // キャラクター Flip
-                        this.transform.localScale = new Vector3(-1.0f, 1.0f, 1.0f);
-                    }
-                    else
-                    {
-                        this._animator.Play("IDLE_RIGHT");
-                        // キャラクター Flip
-                        this.transform.localScale = new Vector3(1.0f, 1.0f, 1.0f);
-                    }
-                    break;
-            }
-
             this._dir = value;
+            if (value != MoveDir.None)
+                this._lastDir = value;
+            
+            this.UpdateAnimation();
         }
     }
-
+    
+    /// <summary>
+    /// Start
+    /// </summary>
     void Start()
     {
         this.Init();
     }
 
+    /// <summary>
+    /// Update
+    /// </summary>
     void Update()
     {
         this.UpdateController();
@@ -122,6 +89,8 @@ public class CreatureController : MonoBehaviour
     {
         // アニメーター取得
         this._animator = GetComponent<Animator>();
+        // Flip用スプライト取得
+        this._sprite = GetComponent<SpriteRenderer>();
         // ワールド座標取得 (TODO. キャラクターのサイズため、臨時で +0.5)
         Vector3 pos = Managers.Map.CurrentGrid.CellToWorld(this._cellPos) + new Vector3(0.5f, 0.5f);
         this.transform.position = pos;
@@ -136,6 +105,71 @@ public class CreatureController : MonoBehaviour
         this.UpdatePosition();
         // 動きのチェック及びアップデート
         this.UpdateIsMoving();
+    }
+    
+    /// <summary>
+    /// ステータスに、応じたアニメー、アップデート
+    /// </summary>
+    protected virtual void UpdateAnimation()
+    {
+        if (this._state == CreatureState.Idle)
+        {
+            switch (this._lastDir)
+            {
+                case MoveDir.Up:
+                    this._animator.Play("IDLE_BACK");
+                    this._sprite.flipX = false;
+                    break;
+                case MoveDir.Down:
+                    this._animator.Play("IDLE_FRONT");
+                    this._sprite.flipX = false;
+                    break;
+                case MoveDir.Left:
+                    this._animator.Play("IDLE_RIGHT");
+                    // キャラクター Flip
+                    this._sprite.flipX = true;
+                    break;
+                case MoveDir.Right:
+                    this._animator.Play("IDLE_RIGHT");
+                    this._sprite.flipX = false;
+                    break;
+            }
+        }
+        else if ( this._state == CreatureState.Moving)
+        {
+            switch (this._dir)
+            {
+                case MoveDir.Up:
+                    this._animator.Play("WALK_BACK");
+                    this._sprite.flipX = false;
+                    break;
+                case MoveDir.Down:
+                    this._animator.Play("WALK_FRONT");
+                    this._sprite.flipX = false;
+                    break;
+                case MoveDir.Left:
+                    this._animator.Play("WALK_RIGHT");
+                    // キャラクター Flip
+                    this._sprite.flipX = true;
+                    break;
+                case MoveDir.Right:
+                    this._animator.Play("WALK_RIGHT");
+                    this._sprite.flipX = false;
+                    break;
+                case MoveDir.None:
+                    
+                    break;
+            }
+            
+        }
+        else if (this._state == CreatureState.Dead)
+        {
+            // TODO
+        }
+        else
+        {
+            // TODO
+        }
     }
     
     /// <summary>
@@ -190,7 +224,11 @@ public class CreatureController : MonoBehaviour
         if (dist < this._speed * Time.deltaTime)
         {
             this.transform.position = destPos;
-            this.State = CreatureState.Idle;
+            
+            // (例外)アニメの直接コントロール
+            this._state = CreatureState.Idle;
+            if ( this._dir == MoveDir.None)
+                this.UpdateAnimation();
         }
         else
         {
