@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -111,6 +112,14 @@ public class PlayerController : MonoBehaviour
         this.UpdatePosition();
         // 動きのチェック及びアップデート
         this.UpdateIsMoving();
+    }
+
+    /// <summary>
+    /// TODO. 臨時、カメラ移動
+    /// </summary>
+    private void LateUpdate()
+    {
+        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
     }
 
     /// <summary>
