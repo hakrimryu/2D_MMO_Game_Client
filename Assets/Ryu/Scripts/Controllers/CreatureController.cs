@@ -12,13 +12,30 @@ public class CreatureController : MonoBehaviour
     /// </summary>
     protected Vector3Int _cellPos = Vector3Int.zero;
     /// <summary>
-    /// 動きチェック
-    /// </summary>
-    protected bool _isMoving = false;
-    /// <summary>
     /// キャラクター·アニメーター
     /// </summary>
     protected Animator _animator;
+
+    /// <summary>
+    /// クリーチャー状態
+    /// </summary>
+    private CreatureState _state = CreatureState.Idle;
+    /// <summary>
+    /// クリーチャー状態 Get Set
+    /// </summary>
+    public CreatureState State
+    {
+        get { return this._state; }
+        set
+        {
+            if (this._state == value)
+                return;
+
+            this._state = value;
+        }
+    }
+
+
     /// <summary>
     /// 動き方
     /// </summary>
@@ -126,7 +143,7 @@ public class CreatureController : MonoBehaviour
     /// </summary>
     private void UpdateIsMoving()
     {
-        if (this._isMoving == false && _dir != MoveDir.None)
+        if (this.State == CreatureState.Idle && _dir != MoveDir.None)
         {
             Vector3Int destPos = this._cellPos;
             
@@ -146,11 +163,10 @@ public class CreatureController : MonoBehaviour
                     break;
             }
 
-            Debug.Log($"{Managers.Map.CanGo(destPos)}");
             if (Managers.Map.CanGo(destPos))
             {
                 this._cellPos = destPos;
-                this._isMoving = true ;
+                this.State = CreatureState.Moving;
             }
         }
     }
@@ -160,7 +176,7 @@ public class CreatureController : MonoBehaviour
     /// </summary>
     private void UpdatePosition()
     {
-        if (this._isMoving == false)
+        if ( this.State != CreatureState.Moving)
             return;
         
         // 目的地ワールド座標取得 (TODO. キャラクターのサイズため、臨時で +0.5)
@@ -174,13 +190,13 @@ public class CreatureController : MonoBehaviour
         if (dist < this._speed * Time.deltaTime)
         {
             this.transform.position = destPos;
-            this._isMoving = false;
+            this.State = CreatureState.Idle;
         }
         else
         {
             // TODO. スピードが速い場合、バグが発生する可能性が高いため、修正が必要
             this.transform.position += moveDir.normalized * (this._speed * Time.deltaTime);
-            this._isMoving = true;
+            this.State = CreatureState.Moving;
         }
     }
 }
