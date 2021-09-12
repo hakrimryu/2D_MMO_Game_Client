@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 /// <summary>
@@ -12,6 +13,36 @@ public class MapManager
     /// 現在Grid(照会用)
     /// </summary>
     public Grid CurrentGrid { get; private set; }
+
+    /// <summary>
+    /// マップサイズ情報
+    /// </summary>
+    public int MinX { get; set; }
+    public int MaxX { get; set; }
+    public int MinY { get; set; }
+    public int MaxY { get; set; }
+
+    /// <summary>
+    /// Collision
+    /// </summary>
+    private bool[,] _collision;
+
+    /// <summary>
+    /// 該当セルに、移動できるかをチェック
+    /// </summary>
+    public bool CanGo(Vector3Int cellPos)
+    {
+        // 不可能な事項例外処理
+        if (cellPos.x < MinX || cellPos.x > MaxX)
+            return false;
+        if (cellPos.y < MinY || cellPos.y > MaxY)
+            return false;
+
+        // 取得
+        int x = cellPos.x - MinX;
+        int y = MaxY - cellPos.y;
+        return !this._collision[y, x];
+    }
 
     /// <summary>
     /// マップ·ロード
@@ -33,6 +64,32 @@ public class MapManager
 
         // 現在Grid取得
         this.CurrentGrid = go.GetComponent<Grid>();
+        
+        // Collision 関連
+        TextAsset mapTxt = Managers.Resource.Load<TextAsset>($"Map/{mapName}");
+        
+        // パーシング
+        StringReader reader = new StringReader(mapTxt.text);
+        this.MinX = int.Parse(reader.ReadLine());
+        this.MaxX = int.Parse(reader.ReadLine());
+        this.MinY = int.Parse(reader.ReadLine());
+        this.MaxY = int.Parse(reader.ReadLine());
+
+        // Collisionカウント取得
+        int xCount = this.MaxX - this.MinX + 1;
+        int yCount = this.MaxY - this.MinY + 1;
+        
+        this._collision = new bool[yCount, xCount];
+        // Collision取得
+        for (int y = 0; y < yCount; y++)
+        {
+            string line = reader.ReadLine();
+            for (int x = 0; x < xCount; x++)
+            {
+                this._collision[y, x] = (line[x] == '1' ? true : false);
+            }
+        }
+
     }
 
     /// <summary>
