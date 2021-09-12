@@ -1,10 +1,7 @@
 ﻿using UnityEngine;
 using static Define;
 
-/// <summary>
-/// プレーヤーコントローラ
-/// </summary>
-public class PlayerController : CreatureController
+public class MonsterController : CreatureController
 {
     protected override void Init()
     {
@@ -14,18 +11,10 @@ public class PlayerController : CreatureController
     protected override void UpdateController()
     {
         // 動き入力
-        this.GetDirInput();
+        //this.GetDirInput();
         base.UpdateController();
     }
     
-    /// <summary>
-    /// TODO. 臨時、カメラ移動
-    /// </summary>
-    private void LateUpdate()
-    {
-        Camera.main.transform.position = new Vector3(transform.position.x, transform.position.y, -10);
-    }
-
     /// <summary>
     /// 動き入力
     /// </summary>

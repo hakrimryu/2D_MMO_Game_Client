@@ -4,6 +4,17 @@
 public class Define
 {
     /// <summary>
+    /// クリーチャーステータス
+    /// </summary>
+    public enum CreatureState
+    {
+        Idle = 0,
+        Moving = 1,
+        Skill = 2,
+        Dead = 3
+    }
+    
+    /// <summary>
     /// Direction
     /// 動き方
     /// </summary>
